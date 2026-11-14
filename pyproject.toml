@@ -1,0 +1,18 @@
+[project]
+name = "tracker-aeroplanes-sql"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "Василий Вихрь",email = "koshchey777@gmail.com"}
+]
+requires-python = "^3.14"
+dependencies = [
+    "requests (>=2.34.2,<3.0.0)",
+    "psycopg2 (>=2.9.13,<3.0.0)",
+    "dotenv (>=0.9.9,<0.10.0)"
+]
+
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
