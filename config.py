@@ -10,4 +10,5 @@ db_config = {
     'host': os.getenv('HOST'),
     'port': os.getenv('PORT')
              }
-print(db_config)
+
+COUNTRIES = ['Iceland', 'Norway', 'Switzerland', 'Denmark']
