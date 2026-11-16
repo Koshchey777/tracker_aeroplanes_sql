@@ -29,7 +29,6 @@ class DBManager:
         '''
         return self.__execute_query(query)
 
-
     def get_all_aeroplanes(self):
         '''Функция выводит список самолетов'''
         query = '''SELECT a.ica, a.callsign, c.country FROM airplanes a
@@ -39,13 +38,13 @@ class DBManager:
 
 
     def get_avg_speed(self):
-        '''Функция возвращает среднюю скорость самолетов'''
+        '''Функция возвращает среднюю скорость среди самолетов'''
         query = '''SELECT AVG(velocity) FROM airplanes'''
         data = self.__execute_query(query)
         return f'Cредняя скорость: {round(data[0][0], 2)}'
 
     def get_avg_height(self):
-        '''Функция возвращает среднюю скорость самолетов'''
+        '''Функция возвращает среднюю высоту среди самолетов'''
         query = '''SELECT AVG(altitude) FROM airplanes'''
         data = self.__execute_query(query)
         return f'Cредняя высота: {round(data[0][0], 2)}'
@@ -68,6 +67,3 @@ class DBManager:
         WHERE a.callsign LIKE '%{word}%'
         ORDER BY c.country'''
         return self.__execute_query(query)
-
-db = DBManager('air')
-print(db.get_aeroplanes_with_keyword('DA'))
