@@ -27,11 +27,13 @@ class NominatimApi(BaseApi):
         }
 
     def get_response(self):
+        '''Получение ответа на запрос от Nominatim'''
         response = get(url=self.__openstreetmap_url, params=self.__params_nominatim, headers=self.__headers_nominatim)
         response.raise_for_status()
         return response.json()
 
     def get_data(self):
+        '''Получение координат страны'''
         return self.get_response()[0].get('boundingbox')
 
 
@@ -48,25 +50,27 @@ class OpenskyApi(BaseApi):
 
 
     def get_response(self):
+        '''Получение ответа на запрос от Opensky'''
         response = get(url=self.__opensky_url, params=self.__params)
         response.raise_for_status()
         return response.json()
 
     def get_data(self):
+        '''Получение информации о самолетах'''
         airplanes = []
         data = self.get_response()['states']
         for airplane in data:
             airplanes.append({'ica': airplane[0],
-                              'callsign': airplane[1].strip(),
+                              'callsign': airplane[1].strip() if airplane[1] else '',
                               'altitude': airplane[7],
                               'on_ground': airplane[8],
                               'velocity': airplane[9]})
 
         return airplanes
 
-nm_api = NominatimApi('Canada')
-coords = nm_api.get_data()
-print(coords)
-
-opensky_api = OpenskyApi(coords)
-print(opensky_api.get_data())
+# nm_api = NominatimApi('Denmark')
+# coords = nm_api.get_data()
+# print(coords)
+#
+# opensky_api = OpenskyApi(coords)
+# print(opensky_api.get_data())
