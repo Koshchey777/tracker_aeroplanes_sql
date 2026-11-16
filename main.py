@@ -1,6 +1,6 @@
+from src.db_manager import DBManager
 from src.utils_db import create_database, create_tables, insert_data
 
-from src.db_manager import DBManager
 
 def print_countries_count(data):
     '''Функция форматирует данные о странах и количестве самолётов'''
