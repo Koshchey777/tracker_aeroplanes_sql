@@ -4,16 +4,19 @@ from config import db_config
 
 
 class DBManager:
+    """Класс для работы с данными"""
 
     def __init__(self, dbname):
         """Инициализация с помощью имени базы"""
         self.__dbname = dbname
 
-    def __execute_query(self, query):
+    def __execute_query(self, query, params=None):
         """Функция для подключения к базе для реализации запроса"""
+        if params is None:
+            params = ()
         with psycopg2.connect(dbname=self.__dbname, **db_config) as conn:
             with conn.cursor() as cursor:
-                cursor.execute(query)
+                cursor.execute(query, params)
                 data = cursor.fetchall()
         return data
 
@@ -29,7 +32,7 @@ class DBManager:
 
     def get_all_aeroplanes(self):
         """Функция выводит список самолетов"""
-        query = """SELECT a.ica, a.callsign, c.country FROM airplanes a
+        query = """SELECT a.ica, a.callsign, a.altitude, a.on_ground, a.velocity, c.country FROM airplanes a
         JOIN countries c ON c.id = a.country_id
         ORDER BY c.country"""
         return self.__execute_query(query)
@@ -38,18 +41,18 @@ class DBManager:
         """Функция возвращает среднюю скорость среди самолетов"""
         query = """SELECT AVG(velocity) FROM airplanes"""
         data = self.__execute_query(query)
-        return f"Cредняя скорость: {round(data[0][0], 2)}"
+        return data
 
     def get_avg_height(self):
         """Функция возвращает среднюю высоту среди самолетов"""
         query = """SELECT AVG(altitude) FROM airplanes"""
         data = self.__execute_query(query)
-        return f"Cредняя высота: {round(data[0][0], 2)}"
+        return data
 
     def aeroplanes_with_higher_speed(self):
         """Функция возвращает список самолетов,
         у которых скорость выше средней"""
-        query = """SELECT a.ica, a.callsign, c.country FROM airplanes a
+        query = """SELECT a.ica, a.callsign, a.altitude, a.on_ground, a.velocity, c.country FROM airplanes a
         JOIN countries c ON c.id = a.country_id
         WHERE a.velocity > (SELECT AVG(velocity) FROM airplanes)
         ORDER BY c.country"""
@@ -57,8 +60,9 @@ class DBManager:
 
     def get_aeroplanes_with_keyword(self, word):
         """Функция для поиска в позывном самолета"""
-        query = f"""SELECT a.ica, a.callsign, c.country FROM airplanes a
+        query = f"""SELECT a.ica, a.callsign, a.altitude, a.on_ground, a.velocity, c.country FROM airplanes a
         JOIN countries c ON c.id = a.country_id
-        WHERE a.callsign LIKE '%{word}%'
+        WHERE a.callsign ILIKE %s
         ORDER BY c.country"""
-        return self.__execute_query(query)
+        search = f"%{word}%"
+        return self.__execute_query(query, (search,))

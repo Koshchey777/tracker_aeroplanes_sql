@@ -41,23 +41,34 @@ def create_tables(namedb):
             )""")
 
 
-def insert_data(namedb):
+def get_data_api():
+    """Получение информации от АПИ"""
+    res = []
+    for country in COUNTRIES:
+        nominatium = NominatimApi(country)
+        bbox = nominatium.get_data()
+        opensky_api = OpenskyApi(bbox)
+        airplanes = opensky_api.get_data()
+        res.append({"country": country, "bbox": bbox, "airplanes": airplanes})
+    return res
+
+
+def insert_data(namedb, data):
     """Заполнение таблиц countries и airplanes данными,
     полученными от API"""
     with psycopg2.connect(dbname=namedb, **db_config) as conn:
         with conn.cursor() as cursor:
-            for country in COUNTRIES:
-                nominatium = NominatimApi(country)
-                bbox = nominatium.get_data()
-                lamin, lamax, lomin, lomax = bbox
+            for item in data:
+                country = item["country"]
+                lamin, lamax, lomin, lomax = item["bbox"]
                 cursor.execute(
                     """INSERT INTO countries (country, lamin, lamax, lomin, lomax) VALUES (%s, %s, %s, %s, %s)
                 RETURNING id""",
                     (country, lamin, lamax, lomin, lomax),
                 )
                 country_db_id = cursor.fetchone()[0]
-                opensky_api = OpenskyApi(bbox)
-                for airplane in opensky_api.get_data():
+
+                for airplane in item["airplanes"]:
                     ica = airplane["ica"]
                     callsign = airplane["callsign"]
                     altitude = airplane["altitude"]
@@ -70,6 +81,7 @@ def insert_data(namedb):
                     callsign = EXCLUDED.callsign,
                     altitude = EXCLUDED.altitude,
                     on_ground = EXCLUDED.on_ground,
-                    velocity = EXCLUDED.velocity""",
+                    velocity = EXCLUDED.velocity,
+                    country_id = EXCLUDED.country_id""",
                         (ica, callsign, altitude, on_ground, velocity, country_db_id),
                     )

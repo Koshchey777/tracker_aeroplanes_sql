@@ -64,7 +64,11 @@ class OpenskyApi(BaseApi):
         """Получение информации о самолетах"""
         airplanes = []
         data = self.get_response()["states"]
-        for airplane in data:
+        response_data = self.get_response()
+        states = response_data.get('states')
+        if not states:
+            return airplanes
+        for airplane in states:
             airplanes.append(
                 {
                     "ica": airplane[0],
