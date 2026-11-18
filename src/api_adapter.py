@@ -4,17 +4,21 @@ from requests import get
 
 
 class BaseApi(ABC):
+    '''Класс для дальнейшей работы с АПИ'''
 
     @abstractmethod
     def get_response(self):
+        '''Метод для взаимодействия с АПИ'''
         pass
 
     @abstractmethod
     def get_data(self):
+        '''Метод для форматирования данных АПИ'''
         pass
 
 
 class NominatimApi(BaseApi):
+    '''Класс для получения координат стран'''
 
     def __init__(self, country):
         self.__openstreetmap_url = "https://nominatim.openstreetmap.org/search"
@@ -44,6 +48,7 @@ class NominatimApi(BaseApi):
 
 
 class OpenskyApi(BaseApi):
+    '''Класс для получения самолетов над воздушными пространствами'''
 
     def __init__(self, geo_coordinates):
         self.__opensky_url = "https://opensky-network.org/api/states/all?"
@@ -63,9 +68,8 @@ class OpenskyApi(BaseApi):
     def get_data(self):
         """Получение информации о самолетах"""
         airplanes = []
-        data = self.get_response()["states"]
-        response_data = self.get_response()
-        states = response_data.get('states')
+        response = self.get_response()
+        states = response.get('states')
         if not states:
             return airplanes
         for airplane in states:
